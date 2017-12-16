@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<html>
+<head> 
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif|Roboto" rel="stylesheet">
+
+<!--    <link rel="stylesheet" type="text/css" href="../my_style.css">-->
+    <title>ChatBot-Server Test</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+
+            // Use a "/test" namespace.
+            // An application can open a connection on multiple namespaces, and
+            // Socket.IO will multiplex all those connections on a single
+            // physical channel. If you don't care about multiple channels, you
+            // can set the namespace to an empty string.
+            namespace = '/test';
+            
+            // Connect to the Socket.IO server.
+            // The connection URL has the following format:
+            //     http[s]://<domain>:<port>[/<namespace>]
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+            // Event handler for new connections.
+            // The callback function is invoked when a connection with the
+            // server is established.
+            socket.on('connect', function() {
+                //socket.emit('send_message', {data: 'Hi'});
+            });
+
+            // Event handler for server sent data.
+            // The callback function is invoked whenever the server emits data
+            // to the client. The data is then displayed in the "Received"
+            // section of the page.
+            socket.on('bot_response', function(msg) {
+                $('#log_response').append('<br>' + $('<div/>').text('Bot response: : ' + msg.data).html());
+                console.log(msg.intent);
+            });
+            
+            socket.on('bot_request', function(msg) {
+                $('#log_request').append('<br>' + $('<div/>').text('Received: ' + msg.data).html());
+            });
+            
+            socket.on('bot_command_line_response', function(msg) {
+                console.log('message from server '+msg.data)
+                $('#log_command_line').append('<br>' + $('<div/>').text('Command : ' + msg.data).html());
+            });
+            
+            socket.on('bot_command_line_output', function(msg) {
+                console.log('message from server '+msg.data)
+                $('#log_output_console').append('<br>' + $('<div/>').text(''+msg.data).html());
+            });
+            
+            socket.on('plot_response',function(msg) {
+                show_bar_plot(msg.labels,msg.values);
+            });
+            
+            socket.on('upload_file_response',function() {
+                //window.location.replace("/upload");
+                console.log('i am here')
+                var x = document.getElementById("upload");
+                if (x.style.display === "none") {
+                    x.style.display = "block";
+                } else {
+                    x.style.display = "none";
+                }
+            });
+
+            // Handlers for the different forms in the page.
+            // These accept data from the user and send it to the server in a
+            // variety of ways      
+            $('form#emit').submit(function(event) {
+                socket.emit('send_message', {data: $('#emit_data').val()});
+                return false;
+    
+            });
+            $('form#welcome').submit(function(event) {
+                socket.emit('say_welcome');
+                return false;
+            });
+//            $('form#upload').submit(function(event) {
+//                socket.emit('receive_file');
+//                return false;
+//            });
+            
+        });
+    </script>
+
+</head>
+    
+<body>
+    <div align="center">
+    <h1>ChatBot-Server V.2</h1>
+    <!--<h2>Plots Area:</h2>
+    <canvas id="bar-chart" width="250" height="125"></canvas>
+    --><!-- <p>Async mode is: <b>{{ async_mode }}</b></p> -->
+
+    <form id="upload" method = "POST" action='http://localhost:5000/upload'
+         enctype = "multipart/form-data" style="display:none">
+         <input type = "file" name = "file" id="file"/>
+         <input type = "submit" value="Upload"/>
+    </form>
+    <h2>Send:</h2>
+    <form id="emit" method="POST" action='#'>
+         <input type="text" name="emit_data" id="emit_data" placeholder="Message">
+         <input type="submit" value="Send">
+    </form>
+        <form id="welcome" method="POST" action='#'>
+            <input type="submit" value="Bot say Hi">
+        </form>
+<!--
+        <form id="plot" method="POST" action='#'>
+            <input type="submit" value="Receive Plot">
+        </form>
+-->
+    <div id="command_line_area" style = "float:left; width: 50%;" >
+        <h2>Command Line Area:</h2>
+        <div id="log_command_line"></div>
+    </div>
+    <div id="python_output_console" style = "float:right; width: 50%;">
+        <h2>Output:</h2>
+        <div id="log_output_console"></div>
+    </div>
+    <div id="chat_container_response" style = "float:left; width: 50%;">
+         <h2>Bot Response:</h2>
+         <div id="log_response" ></div>
+    </div>
+    <div id="chat_container_request" style = "float:right; width: 50%;">
+        <h2>Data Received:</h2>
+        <div id="log_request"></div>
+    </div>
+    </div>
+</body>
+</html>
