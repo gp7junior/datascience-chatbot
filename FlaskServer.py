@@ -23,8 +23,8 @@ except ImportError:
 async_mode = 'threading'
 
 # Token for acces the Chatbot on DialogFlow
-CLIENT_ACCESS_TOKEN = 'ea03425023ef48e0a3596aa42968a1b5'
-DEVELOPER_ACCESS_TOKEN = '3615c40fef57423e989797ff097c9d9a'
+CLIENT_ACCESS_TOKEN = 'your client token'
+DEVELOPER_ACCESS_TOKEN = 'your developer token'
 
 # UPLOAD_FOLDER = '/Users/gp7junior/Code/DScience Chatbot V1/'
 ALLOWED_EXTENSIONS = set(['csv', 'xls'])
